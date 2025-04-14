@@ -20,52 +20,21 @@ import {
   ShoppingCart,
   Users,
 } from "lucide-react";
-
-interface ActiveAgent {
-  id: string;
-  title: string;
-  department: string;
-  icon: React.ReactNode;
-  status: "online" | "paused";
-  interactions: number;
-  lastActive: string;
-  successRate: number;
-}
-
-const activeAgents: ActiveAgent[] = [
-  {
-    id: "hr-personnel-guide-1",
-    title: "Personeelsgids Q&A",
-    department: "HR",
-    icon: <Users size={24} className="text-blue-500" />,
-    status: "online",
-    interactions: 128,
-    lastActive: "2023-10-25T14:32:00",
-    successRate: 94,
-  },
-  {
-    id: "sales-quote-1",
-    title: "Offerte Maker",
-    department: "Sales",
-    icon: <ShoppingCart size={24} className="text-orange-500" />,
-    status: "online",
-    interactions: 87,
-    lastActive: "2023-10-25T15:45:00",
-    successRate: 89,
-  },
-  {
-    id: "logistics-cmr-1",
-    title: "CMR Generator",
-    department: "Logistiek",
-    icon: <BriefcaseBusiness size={24} className="text-green-500" />,
-    status: "paused",
-    interactions: 56,
-    lastActive: "2023-10-24T11:20:00",
-    successRate: 92,
-  },
-];
+import { useDashboard } from "@/lib/context";
+import { useRouter } from "next/navigation";
 
 export default function ActiveAgents() {
+  const { activeAgents, pauseAgent, resumeAgent } = useDashboard();
+  const router = useRouter();
+
+  const navigateToTab = (tab: string) => {
+    router.push(`/dashboard?tab=${tab}`);
+  };
+
+  const navigateToAgentChat = (agentId: string) => {
+    router.push(`/dashboard/agent/${agentId}`);
+  };
+
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -102,7 +71,12 @@ export default function ActiveAgents() {
             <p className="text-sm text-gray-500 mt-2 mb-4">
               Activeer een geconfigureerde template om te beginnen
             </p>
-            <Button variant="outline">Naar Gekozen Templates</Button>
+            <Button 
+              variant="outline"
+              onClick={() => navigateToTab("chosen-templates")}
+            >
+              Naar Gekozen Templates
+            </Button>
           </div>
         ) : (
           activeAgents.map((agent) => (
@@ -159,6 +133,7 @@ export default function ActiveAgents() {
                 <Button
                   variant="outline"
                   className="flex-1 flex items-center justify-center gap-2"
+                  onClick={() => navigateToAgentChat(agent.id)}
                 >
                   <MessageSquare size={16} />
                   <span>Chat</span>
@@ -174,6 +149,7 @@ export default function ActiveAgents() {
                   <Button
                     variant="outline"
                     className="flex-1 flex items-center justify-center gap-2"
+                    onClick={() => pauseAgent(agent.id)}
                   >
                     <PauseCircle size={16} />
                     <span>Pauzeren</span>
@@ -182,6 +158,7 @@ export default function ActiveAgents() {
                   <Button
                     variant="outline"
                     className="flex-1 flex items-center justify-center gap-2"
+                    onClick={() => resumeAgent(agent.id)}
                   >
                     <PlayCircle size={16} />
                     <span>Hervatten</span>

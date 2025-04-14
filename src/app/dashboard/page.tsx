@@ -1,3 +1,5 @@
+"use client";
+
 import DashboardNavbar from "@/components/dashboard-navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -6,26 +8,88 @@ import {
   FileText,
   InfoIcon,
   LayoutGrid,
-  UserCircle,
 } from "lucide-react";
-import { redirect } from "next/navigation";
-import { createClient } from "../../../supabase/server";
 import AgentTemplates from "@/components/dashboard/agent-templates";
 import DataStorage from "@/components/dashboard/data-storage";
 import ChosenTemplates from "@/components/dashboard/chosen-templates";
 import ActiveAgents from "@/components/dashboard/active-agents";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default async function Dashboard() {
-  const supabase = await createClient();
+// Client component die de tabselectie via URL parameters afhandelt
+function DashboardTabs() {
+  const [activeTab, setActiveTab] = useState("agent-templates");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // In client component gebruiken we useEffect om de URL te lezen
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ["agent-templates", "data-storage", "chosen-templates", "active-agents"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Update URL wanneer tab wijzigt
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // URL bijwerken zonder volledige pagina reload
+    router.push(`/dashboard?tab=${value}`, { scroll: false });
+  };
 
-  if (!user) {
-    return redirect("/sign-in");
-  }
+  return (
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+      <TabsList className="w-full bg-white border rounded-lg mb-6 p-1 h-auto flex flex-wrap">
+        <TabsTrigger
+          value="agent-templates"
+          className="flex items-center gap-2 py-3 flex-grow"
+        >
+          <Bot size={18} />
+          <span>Agent Templates</span>
+        </TabsTrigger>
+        <TabsTrigger
+          value="data-storage"
+          className="flex items-center gap-2 py-3 flex-grow"
+        >
+          <Database size={18} />
+          <span>Data Storage</span>
+        </TabsTrigger>
+        <TabsTrigger
+          value="chosen-templates"
+          className="flex items-center gap-2 py-3 flex-grow"
+        >
+          <FileText size={18} />
+          <span>Gekozen Templates</span>
+        </TabsTrigger>
+        <TabsTrigger
+          value="active-agents"
+          className="flex items-center gap-2 py-3 flex-grow"
+        >
+          <LayoutGrid size={18} />
+          <span>Actieve Agents</span>
+        </TabsTrigger>
+      </TabsList>
 
+      <TabsContent value="agent-templates" className="space-y-6">
+        <AgentTemplates />
+      </TabsContent>
+
+      <TabsContent value="data-storage" className="space-y-6">
+        <DataStorage />
+      </TabsContent>
+
+      <TabsContent value="chosen-templates" className="space-y-6">
+        <ChosenTemplates />
+      </TabsContent>
+
+      <TabsContent value="active-agents" className="space-y-6">
+        <ActiveAgents />
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+export default function Dashboard() {
   return (
     <>
       <DashboardNavbar />
@@ -47,66 +111,10 @@ export default async function Dashboard() {
             </div>
           </header>
 
-          {/* Dashboard Tabs */}
-          <Tabs defaultValue="agent-templates" className="w-full">
-            <TabsList className="w-full bg-white border rounded-lg mb-6 p-1 h-auto flex flex-wrap">
-              <TabsTrigger
-                value="agent-templates"
-                className="flex items-center gap-2 py-3 flex-grow"
-              >
-                <Bot size={18} />
-                <span>Agent Templates</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="data-storage"
-                className="flex items-center gap-2 py-3 flex-grow"
-              >
-                <Database size={18} />
-                <span>Data Storage</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="chosen-templates"
-                className="flex items-center gap-2 py-3 flex-grow"
-              >
-                <FileText size={18} />
-                <span>Gekozen Templates</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="active-agents"
-                className="flex items-center gap-2 py-3 flex-grow"
-              >
-                <LayoutGrid size={18} />
-                <span>Actieve Agents</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="agent-templates" className="space-y-6">
-              <AgentTemplates />
-            </TabsContent>
-
-            <TabsContent value="data-storage" className="space-y-6">
-              <DataStorage />
-            </TabsContent>
-
-            <TabsContent value="chosen-templates" className="space-y-6">
-              <ChosenTemplates />
-            </TabsContent>
-
-            <TabsContent value="active-agents" className="space-y-6">
-              <ActiveAgents />
-            </TabsContent>
-          </Tabs>
-
-          {/* User Profile Section */}
-          <section className="bg-white rounded-xl p-6 border shadow-sm">
-            <div className="flex items-center gap-4 mb-6">
-              <UserCircle size={48} className="text-primary" />
-              <div>
-                <h2 className="font-semibold text-xl">Gebruikersprofiel</h2>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-              </div>
-            </div>
-          </section>
+          {/* Dashboard Tabs in een Suspense boundary */}
+          <Suspense fallback={<div>Laden...</div>}>
+            <DashboardTabs />
+          </Suspense>
         </div>
       </main>
     </>

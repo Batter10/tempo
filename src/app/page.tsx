@@ -12,14 +12,8 @@ import {
   Bot,
   BriefcaseBusiness,
 } from "lucide-react";
-import { createClient } from "../../supabase/server";
 
-export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <Navbar />
@@ -207,7 +201,7 @@ export default async function Home() {
             href="/dashboard"
             className="inline-flex items-center px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Start Nu Gratis
+            Ga naar Dashboard
             <ArrowUpRight className="ml-2 w-4 h-4" />
           </a>
         </div>

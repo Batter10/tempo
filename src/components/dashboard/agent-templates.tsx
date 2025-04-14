@@ -19,94 +19,11 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-
-type Department = "hr" | "logistics" | "finance" | "sales";
-
-interface Template {
-  id: string;
-  title: string;
-  description: string;
-  department: Department;
-  icon: React.ReactNode;
-  useCases: string[];
-}
-
-const templates: Template[] = [
-  {
-    id: "hr-personnel-guide",
-    title: "Personeelsgids Q&A",
-    description:
-      "Beantwoord vragen van medewerkers over het personeelshandboek en beleid.",
-    department: "hr",
-    icon: <Users size={24} className="text-blue-500" />,
-    useCases: ["Verlofaanvragen", "Ziekmeldingen", "Arbeidsvoorwaarden"],
-  },
-  {
-    id: "hr-onboarding",
-    title: "Onboarding Assistent",
-    description:
-      "Begeleid nieuwe medewerkers door het onboardingproces met gepersonaliseerde instructies.",
-    department: "hr",
-    icon: <Users size={24} className="text-blue-500" />,
-    useCases: ["Introductie", "Documentatie", "Training"],
-  },
-  {
-    id: "logistics-inventory",
-    title: "Voorraad Assistent",
-    description:
-      "Houd voorraden bij en genereer automatisch bestellingen wanneer nodig.",
-    department: "logistics",
-    icon: <BriefcaseBusiness size={24} className="text-green-500" />,
-    useCases: ["Voorraadniveaus", "Bestellingen", "Leveranciersbeheer"],
-  },
-  {
-    id: "logistics-cmr",
-    title: "CMR Generator",
-    description:
-      "Genereer automatisch transportdocumenten op basis van ordergegevens.",
-    department: "logistics",
-    icon: <BriefcaseBusiness size={24} className="text-green-500" />,
-    useCases: ["Vrachtbrieven", "Transportplanning", "Documentatie"],
-  },
-  {
-    id: "finance-invoice",
-    title: "Bon-naar-Factuur",
-    description:
-      "Converteer bonnetjes en kwitanties automatisch naar facturen voor de boekhouding.",
-    department: "finance",
-    icon: <Calculator size={24} className="text-purple-500" />,
-    useCases: ["Bonverwerking", "Factuurcreatie", "Boekhouding"],
-  },
-  {
-    id: "finance-expense",
-    title: "Uitgavenanalyse",
-    description:
-      "Analyseer uitgavenpatronen en identificeer besparingsmogelijkheden.",
-    department: "finance",
-    icon: <Calculator size={24} className="text-purple-500" />,
-    useCases: ["Kostenanalyse", "Budgettering", "Rapportage"],
-  },
-  {
-    id: "sales-quote",
-    title: "Offerte Maker",
-    description:
-      "Genereer professionele offertes op basis van klantgegevens en productcatalogus.",
-    department: "sales",
-    icon: <ShoppingCart size={24} className="text-orange-500" />,
-    useCases: ["Prijsberekening", "Klantvoorstellen", "Verkoopbegeleiding"],
-  },
-  {
-    id: "sales-crm",
-    title: "CRM Generator",
-    description:
-      "Houd klantinteracties bij en genereer gepersonaliseerde follow-ups.",
-    department: "sales",
-    icon: <ShoppingCart size={24} className="text-orange-500" />,
-    useCases: ["Klantbeheer", "Verkoopkansen", "Follow-up"],
-  },
-];
+import { useDashboard } from "@/lib/context";
+import { Department, Template } from "@/types";
 
 export default function AgentTemplates() {
+  const { templates, addTemplate } = useDashboard();
   const [selectedDepartment, setSelectedDepartment] = useState<
     Department | "all"
   >("all");
@@ -117,6 +34,10 @@ export default function AgentTemplates() {
       : templates.filter(
           (template) => template.department === selectedDepartment,
         );
+
+  const handleAddTemplate = (template: Template) => {
+    addTemplate(template);
+  };
 
   return (
     <div className="space-y-6">
@@ -202,7 +123,10 @@ export default function AgentTemplates() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full flex items-center gap-2">
+              <Button 
+                className="w-full flex items-center gap-2"
+                onClick={() => handleAddTemplate(template)}
+              >
                 <PlusCircle size={16} />
                 <span>Template Toevoegen</span>
               </Button>

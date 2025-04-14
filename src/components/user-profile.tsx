@@ -2,12 +2,16 @@
 import { UserCircle } from 'lucide-react'
 import { Button } from './ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { createClient } from '../../supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function UserProfile() {
-    const supabase = createClient()
     const router = useRouter()
+
+    const handleSignOut = async () => {
+        // Placeholder voor toekomstige authentificatie
+        console.log('Sign out functionaliteit moet nog worden geïmplementeerd')
+        router.refresh()
+    }
 
     return (
         <DropdownMenu>
@@ -17,14 +21,10 @@ export default function UserProfile() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={async () => {
-                    await supabase.auth.signOut()
-                    router.refresh()
-                }}>
+                <DropdownMenuItem onClick={handleSignOut}>
                     Sign out
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
-
     )
 }

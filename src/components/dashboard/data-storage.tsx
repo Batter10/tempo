@@ -17,88 +17,14 @@ import {
   ShoppingCart,
   Upload,
   Users,
+  Box,
 } from "lucide-react";
 import { useState } from "react";
-
-type Department = "hr" | "logistics" | "finance" | "sales";
-
-interface DataFolder {
-  id: string;
-  name: string;
-  department: Department;
-  icon: React.ReactNode;
-  fileCount: number;
-  lastUpdated: string;
-}
-
-const dataFolders: DataFolder[] = [
-  {
-    id: "hr-docs",
-    name: "Personeelsdocumenten",
-    department: "hr",
-    icon: <Users size={24} className="text-blue-500" />,
-    fileCount: 12,
-    lastUpdated: "2023-10-15",
-  },
-  {
-    id: "hr-policies",
-    name: "Bedrijfsbeleid",
-    department: "hr",
-    icon: <Users size={24} className="text-blue-500" />,
-    fileCount: 5,
-    lastUpdated: "2023-09-28",
-  },
-  {
-    id: "logistics-inventory",
-    name: "Voorraadgegevens",
-    department: "logistics",
-    icon: <BriefcaseBusiness size={24} className="text-green-500" />,
-    fileCount: 8,
-    lastUpdated: "2023-10-20",
-  },
-  {
-    id: "logistics-shipping",
-    name: "Transportdocumenten",
-    department: "logistics",
-    icon: <BriefcaseBusiness size={24} className="text-green-500" />,
-    fileCount: 15,
-    lastUpdated: "2023-10-22",
-  },
-  {
-    id: "finance-invoices",
-    name: "Facturen",
-    department: "finance",
-    icon: <Calculator size={24} className="text-purple-500" />,
-    fileCount: 32,
-    lastUpdated: "2023-10-25",
-  },
-  {
-    id: "finance-expenses",
-    name: "Uitgaven",
-    department: "finance",
-    icon: <Calculator size={24} className="text-purple-500" />,
-    fileCount: 18,
-    lastUpdated: "2023-10-18",
-  },
-  {
-    id: "sales-customers",
-    name: "Klantgegevens",
-    department: "sales",
-    icon: <ShoppingCart size={24} className="text-orange-500" />,
-    fileCount: 24,
-    lastUpdated: "2023-10-21",
-  },
-  {
-    id: "sales-products",
-    name: "Productcatalogus",
-    department: "sales",
-    icon: <ShoppingCart size={24} className="text-orange-500" />,
-    fileCount: 7,
-    lastUpdated: "2023-09-30",
-  },
-];
+import { useDashboard } from "@/lib/context";
+import { Department } from "@/types";
 
 export default function DataStorage() {
+  const { dataFolders } = useDashboard();
   const [selectedDepartment, setSelectedDepartment] = useState<
     Department | "all"
   >("all");
@@ -183,6 +109,24 @@ export default function DataStorage() {
             Klik om een nieuwe map voor uw data aan te maken
           </p>
         </Card>
+
+        {/* Empty State */}
+        {filteredFolders.length === 0 && (
+          <Card className="md:col-span-2 flex flex-col items-center justify-center p-10 border-dashed">
+            <Box size={48} className="text-gray-300 mb-4" />
+            <h3 className="text-lg font-medium text-gray-600 mb-2">
+              Geen data mappen gevonden
+            </h3>
+            <p className="text-sm text-gray-500 text-center mb-6 max-w-md">
+              U heeft nog geen datamappen in deze categorie. Maak een nieuwe map aan om 
+              uw bedrijfsgegevens te organiseren en AI-templates te verrijken.
+            </p>
+            <Button variant="outline" className="flex items-center gap-2">
+              <FolderPlus size={16} />
+              <span>Eerste Map Aanmaken</span>
+            </Button>
+          </Card>
+        )}
 
         {/* Data Folders */}
         {filteredFolders.map((folder) => (

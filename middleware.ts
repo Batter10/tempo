@@ -1,12 +1,24 @@
 import React from "react";
-import { updateSession } from "./supabase/middleware";
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  const pathname = request.nextUrl.pathname;
+  console.log('[Root Middleware] Pathname:', pathname);
+
+  // Als het een API route is, doe niets en ga door
+  if (pathname.startsWith('/api')) {
+    console.log('[Root Middleware] API route gedetecteerd, doorsturen...');
+    return NextResponse.next();
+  }
+
+  // Anders, pas originele logica toe (of doe niets als er geen andere logica was)
+  console.log('[Root Middleware] Geen API route, doorsturen...');
+  return NextResponse.next();
 }
 
 export const config = {
+  // Aangepaste matcher om API routes expliciet uit te sluiten van complexe logica
+  // maar we laten ze wel door de middleware gaan voor logging
   matcher: [
     /*
      * Match all request paths except:
